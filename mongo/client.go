@@ -865,3 +865,13 @@ func newLogger(opts *options.LoggerOptions) (*logger.Logger, error) {
 
 	return logger.New(opts.Sink, opts.MaxDocumentLength, componentLevels)
 }
+
+// IsTopologyConsistent returns false when we have a replica set that claims to
+// have no primary but there exists a primary with all other nodes as secondaries. This
+// specifically works around HELP-13825.
+func (c *Client) IsTopologyConsistent() bool {
+	if topo, ok := c.deployment.(*topology.Topology); ok {
+		return topo.IsConsistent()
+	}
+	return true
+}
